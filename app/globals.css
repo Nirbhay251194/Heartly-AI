@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --background: 248 250 252;
+  --foreground: 15 23 42;
+  --surface: 255 255 255;
+  --surface-strong: 241 245 249;
+  --border: 226 232 240;
+  --muted: 100 116 139;
+  --primary: 236 72 153;
+  --primary-strong: 219 39 119;
+  --secondary: 139 92 246;
+  --success: 34 197 94;
+  --warning: 245 158 11;
+  --error: 239 68 68;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: 2 6 23;
+  --foreground: 255 255 255;
+  --surface: 15 23 42;
+  --surface-strong: 30 41 59;
+  --border: 30 41 59;
+  --muted: 203 213 225;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top, rgba(236, 72, 153, 0.18), transparent 34%),
+    radial-gradient(circle at 80% 20%, rgba(139, 92, 246, 0.16), transparent 26%),
+    rgb(var(--background));
+  color: rgb(var(--foreground));
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(236, 72, 153, 0.25);
+}

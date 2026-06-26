@@ -1,2 +1,3 @@
-# Heartly-AI
-AI powered Companion who listens, who cares.
+# Hartly AI
+
+AI powered companion platform that listens, remembers, and responds with emotional intelligence.
