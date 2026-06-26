@@ -1,7 +1,7 @@
 import type { Language, RelationshipStage } from "@/types/chat";
 import type { Companion } from "@/types/companion";
 import { buildChatPrompt } from "@/features/chat/chat-engine";
-import { generateChatCompletion, type OpenRouterMessage } from "@/services/openrouter";
+import { generateChatCompletion, type ChatCompletionResult, type OpenRouterMessage } from "@/services/openrouter";
 import { AI_MODELS } from "@/config/models";
 
 export interface ChatContext {
@@ -11,6 +11,13 @@ export interface ChatContext {
   memorySummary?: string;
   recentMessages: Array<{ role: "user" | "assistant"; content: string }>;
   userMessage: string;
+}
+
+export interface CompanionReplyResult {
+  reply: string;
+  model: string;
+  estimatedTokens: number;
+  usedFallback: boolean;
 }
 
 function buildMessages(context: ChatContext): OpenRouterMessage[] {
@@ -38,16 +45,42 @@ function buildMessages(context: ChatContext): OpenRouterMessage[] {
 }
 
 export async function generateCompanionReply(context: ChatContext): Promise<string> {
+  const result = await generateCompanionReplyResult(context);
+  return result.reply;
+}
+
+export async function generateCompanionReplyResult(context: ChatContext): Promise<CompanionReplyResult> {
   const messages = buildMessages(context);
 
-  try {
-    const primary = await generateChatCompletion(messages, AI_MODELS.primary);
-    if (primary) {
-      return primary;
+  const primaryAttempts = 2;
+  for (let attempt = 0; attempt < primaryAttempts; attempt += 1) {
+    try {
+      const primary = await generateChatCompletion(messages, AI_MODELS.primary);
+      if (primary.content) {
+        return toReplyResult(primary, false);
+      }
+    } catch (error) {
+      console.warn("Primary model failed", error);
     }
-  } catch (error) {
-    console.warn("Primary model failed", error);
   }
 
-  return generateChatCompletion(messages, AI_MODELS.fallback);
+  try {
+    const fallback = await generateChatCompletion(messages, AI_MODELS.fallback);
+    if (fallback.content) {
+      return toReplyResult(fallback, true);
+    }
+  } catch (error) {
+    console.warn("Fallback model failed", error);
+  }
+
+  throw new Error("I could not reach Hartly's AI right now. Please try again in a moment.");
+}
+
+function toReplyResult(result: ChatCompletionResult, usedFallback: boolean): CompanionReplyResult {
+  return {
+    reply: result.content,
+    model: result.model,
+    estimatedTokens: result.estimatedTokens,
+    usedFallback
+  };
 }

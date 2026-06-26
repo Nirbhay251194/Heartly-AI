@@ -7,6 +7,7 @@ export interface Companion {
   age: number;
   avatar: string;
   occupation: string;
+  email: string;
   city?: string;
   personality: string[];
   conversationStyle: string[];
@@ -16,11 +17,14 @@ export interface Companion {
   loveLanguage: string;
   interests: string[];
   favoriteTopics: string[];
+  favoriteQuote: string;
+  shortBio: string;
   greetingStyle: string;
   responseLength: "Short" | "Balanced" | "Thoughtful";
   languageBehavior: string;
   systemPrompt: string;
   status: "Active" | "Inactive";
+  onlineStatus: "Online" | "Away";
   displayOrder: number;
   supportedLanguages: Language[];
 }

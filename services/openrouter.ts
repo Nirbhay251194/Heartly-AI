@@ -5,7 +5,13 @@ export interface OpenRouterMessage {
   content: string;
 }
 
-export async function generateChatCompletion(messages: OpenRouterMessage[], model: string = AI_MODELS.primary): Promise<string> {
+export interface ChatCompletionResult {
+  content: string;
+  model: string;
+  estimatedTokens: number;
+}
+
+export async function generateChatCompletion(messages: OpenRouterMessage[], model: string = AI_MODELS.primary): Promise<ChatCompletionResult> {
   const apiKey = process.env.OPENROUTER_API_KEY;
   const baseUrl = process.env.OPENROUTER_BASE_URL ?? "https://openrouter.ai/api/v1";
 
@@ -34,7 +40,17 @@ export async function generateChatCompletion(messages: OpenRouterMessage[], mode
 
   const data: {
     choices?: Array<{ message?: { content?: string } }>;
+    usage?: { total_tokens?: number };
   } = await response.json();
 
-  return data.choices?.[0]?.message?.content?.trim() ?? "";
+  const content = data.choices?.[0]?.message?.content?.trim() ?? "";
+  return {
+    content,
+    model,
+    estimatedTokens: data.usage?.total_tokens ?? estimateTokenCount(messages.map((message) => message.content).join("\n")) + estimateTokenCount(content)
+  };
+}
+
+function estimateTokenCount(content: string): number {
+  return Math.max(1, Math.ceil(content.trim().length / 4));
 }
