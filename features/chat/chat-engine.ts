@@ -18,6 +18,8 @@ export function buildChatPrompt(input: BuildPromptInput): string {
     .map((message) => `${message.sender.toUpperCase()}: ${message.content}`)
     .join("\n");
 
+  const lastUserMessage = [...input.recentMessages].reverse().find((message) => message.sender === "user")?.content ?? "";
+
   return [
     GLOBAL_SYSTEM_PROMPT,
     buildCompanionPrompt(input.companion),
@@ -25,6 +27,8 @@ export function buildChatPrompt(input: BuildPromptInput): string {
     `Relationship stage: ${input.relationshipStage}`,
     input.memorySummary ? `Memory summary:\n${input.memorySummary}` : "",
     recentConversation ? `Recent conversation:\n${recentConversation}` : "",
+    lastUserMessage ? `Latest user message to react to:\n${lastUserMessage}` : "",
+    "Behavior notes: Be emotionally responsive. Acknowledge what changed in the user's mood or situation. Ask a follow-up question when the conversation naturally invites one. Do not sound repetitive or formal.",
     `USER: ${input.userMessage}`
   ]
     .filter(Boolean)

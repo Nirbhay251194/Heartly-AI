@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAuthContext } from "@/services/auth";
+import { getAuthContext, isAdminEmail } from "@/services/auth";
 import { getMissingEnvironmentVariables } from "@/services/supabase";
 import { getRemainingFreeMessages, updateProfilePreferences } from "@/services/database";
 import type { Language } from "@/types/chat";
@@ -22,6 +22,7 @@ export async function GET(request: Request) {
       data: {
         profile: auth.profile,
         remainingMessages: getRemainingFreeMessages(auth.profile),
+        isAdmin: isAdminEmail(auth.profile.email),
         missingEnvironmentVariables: getMissingEnvironmentVariables()
       }
     });

@@ -17,6 +17,13 @@ interface AdminResponse {
   data?: AdminSnapshot;
 }
 
+interface ProfileResponse {
+  success: boolean;
+  data?: {
+    isAdmin?: boolean;
+  };
+}
+
 interface AdminActionResponse {
   success: boolean;
   message?: string;
@@ -40,9 +47,24 @@ export default function DashboardPage() {
       return;
     }
 
-    supabase.auth.getSession().then(({ data }) => {
+    supabase.auth.getSession().then(async ({ data }) => {
       if (!data.session) {
         router.replace("/login?redirectTo=/dashboard");
+        return;
+      }
+
+      const response = await fetch("/api/profile", {
+        headers: { Authorization: `Bearer ${data.session.access_token}` }
+      });
+
+      if (!response.ok) {
+        router.replace("/chat");
+        return;
+      }
+
+      const payload = (await response.json()) as ProfileResponse;
+      if (!payload.data?.isAdmin) {
+        router.replace("/chat");
         return;
       }
 

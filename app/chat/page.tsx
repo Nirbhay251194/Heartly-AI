@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { LogIn, LogOut, MessageSquareText, UserRound } from "lucide-react";
+import { LogIn, LogOut, MessageSquareText, Sparkles, UserRound } from "lucide-react";
 import type { Session } from "@supabase/supabase-js";
 import { Button, buttonClassName } from "@/components/UI/Button";
 import { Card } from "@/components/UI/Card";
@@ -73,6 +73,7 @@ export default function ChatPage() {
   const [isTyping, setIsTyping] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [notice, setNotice] = useState("");
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const loadedKeyRef = useRef("");
   const scrollAnchorRef = useRef<HTMLDivElement | null>(null);
   const supabase = useMemo(() => getSupabaseClient(), []);
@@ -139,7 +140,8 @@ export default function ChatPage() {
         throw new Error(data.message ?? "Could not load your conversation.");
       }
 
-      setMessages(data.data?.messages ?? []);
+      const serverMessages = data.data?.messages ?? [];
+      setMessages((current) => (current.length > 0 ? current : serverMessages));
       setRemainingMessages(data.data?.remainingMessages ?? null);
       setIsLoading(false);
     }
@@ -186,6 +188,11 @@ export default function ChatPage() {
 
   async function sendMessage(content: string) {
     if (!setup || !companion) return;
+    if (!session && anonymousRemaining <= 0) {
+      setShowLimitModal(true);
+      return;
+    }
+
     const recentMessages = messages.slice(-12);
     const userMessage: ChatMessage = {
       id: crypto.randomUUID(),
@@ -276,8 +283,8 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-4xl flex-col px-4 py-4">
-      <Card className="mb-4 flex flex-wrap items-center justify-between gap-4">
+    <main className="mx-auto flex min-h-screen w-full max-w-[420px] flex-col gap-3 px-3 py-3 sm:px-4">
+      <Card className="sticky top-3 z-30 flex flex-wrap items-center justify-between gap-4 border-white/80 bg-white/90 shadow-[0_20px_60px_rgba(15,23,42,0.12)] dark:border-slate-800/90 dark:bg-slate-950/90">
         <div className="flex items-center gap-3">
           <div className="h-14 w-14 rounded-full bg-gradient-to-br from-pink-400 to-purple-500 bg-cover bg-center shadow-lg shadow-pink-500/20" style={{ backgroundImage: `url(${companion.avatar})` }} />
           <div>
@@ -309,8 +316,8 @@ export default function ChatPage() {
           )}
         </div>
       </Card>
-      <Card className="flex min-h-[65vh] flex-1 flex-col gap-4 overflow-hidden">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+      <Card className="flex min-h-0 flex-1 flex-col gap-4 overflow-hidden p-0">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 px-4 py-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
           <div className="flex flex-wrap gap-2">
             <MetaPill label="Language" value={setup.language} />
             <MetaPill label="Mood" value={companion.greetingStyle} />
@@ -319,7 +326,7 @@ export default function ChatPage() {
           </div>
           <span>{effectiveRemainingMessages === null ? "Unlimited messages" : `${effectiveRemainingMessages} free messages left`}</span>
         </div>
-        <div className="flex-1 space-y-4 overflow-y-auto px-1 py-1">
+        <div className="flex-1 space-y-4 overflow-y-auto px-4 py-4">
           {isLoading ? (
             <div className="space-y-3 py-10">
               <div className="h-20 rounded-[24px] bg-slate-100 dark:bg-slate-800/80" />
@@ -335,11 +342,42 @@ export default function ChatPage() {
           {isTyping ? <TypingIndicator /> : null}
           <div ref={scrollAnchorRef} />
         </div>
-        {notice ? <p className="rounded-2xl bg-pink-50 px-4 py-3 text-sm text-pink-700 dark:bg-pink-950/30 dark:text-pink-200">{notice}</p> : null}
-        <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-          <ChatInput onSend={sendMessage} disabled={isTyping || isLoading || effectiveRemainingMessages === 0} />
+        {notice ? <p className="mx-4 rounded-2xl bg-pink-50 px-4 py-3 text-sm text-pink-700 dark:bg-pink-950/30 dark:text-pink-200">{notice}</p> : null}
+        <div className="sticky bottom-3 border-t border-slate-200 bg-white/95 px-4 pt-4 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/95">
+          <ChatInput onSend={sendMessage} disabled={isTyping || isLoading} />
         </div>
       </Card>
+      {showLimitModal ? (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/50 px-3 py-3 backdrop-blur-sm sm:items-center">
+          <Card className="w-full max-w-md">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-pink-500/10 text-pink-600">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-semibold text-slate-950 dark:text-white">Keep this conversation going</h2>
+                <p className="text-sm text-slate-600 dark:text-slate-300">You’ve used your 4 free anonymous messages.</p>
+              </div>
+            </div>
+            <div className="mt-5 grid gap-3">
+              <Link href="/login?redirectTo=/chat" onClick={() => setShowLimitModal(false)} className={buttonClassName("primary", "w-full")}>
+                Continue with Email
+              </Link>
+              {process.env.NEXT_PUBLIC_GOOGLE_OAUTH_ENABLED === "true" ? (
+                <Link href="/login?redirectTo=/chat" onClick={() => setShowLimitModal(false)} className={buttonClassName("secondary", "w-full")}>
+                  Continue with Google
+                </Link>
+              ) : null}
+              <Link href="/payment" onClick={() => setShowLimitModal(false)} className={buttonClassName("ghost", "w-full")}>
+                Subscribe Now
+              </Link>
+              <button type="button" onClick={() => setShowLimitModal(false)} className="text-sm font-medium text-slate-500">
+                Not now
+              </button>
+            </div>
+          </Card>
+        </div>
+      ) : null}
     </main>
   );
 }

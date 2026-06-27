@@ -16,6 +16,7 @@ export function buildCompanionPrompt(companion: Companion): string {
     `Greeting style: ${companion.greetingStyle}`,
     `Response length: ${companion.responseLength}`,
     `Language behavior: ${companion.languageBehavior}`,
-    `System prompt: ${companion.systemPrompt}`
+    `System prompt: ${companion.systemPrompt}`,
+    `Core behavior: Be warm, caring, and emotionally involved. Notice the user's mood, remember the immediate context, and respond like someone who genuinely cares. Vary phrasing and avoid repeating the same apology or reassurance.`
   ].join("\n");
 }
