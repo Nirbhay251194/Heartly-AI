@@ -24,7 +24,9 @@ export function ChatInput({ onSend, disabled }: ChatInputProps) {
   return (
     <form onSubmit={handleSubmit} className="flex gap-3">
       <Input value={value} onChange={(event) => setValue(event.target.value)} placeholder="Type a message..." disabled={disabled} />
-      <Button type="submit" disabled={disabled || !value.trim()}>Send</Button>
+      <Button type="submit" disabled={disabled || !value.trim()} aria-label="Send message">
+        Send
+      </Button>
     </form>
   );
 }

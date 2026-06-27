@@ -18,3 +18,7 @@ const variantClasses: Record<ButtonVariant, string> = {
 export function Button({ className, variant = "primary", ...props }: ButtonProps) {
   return <button className={cn("inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-semibold transition", variantClasses[variant], className)} {...props} />;
 }
+
+export function buttonClassName(variant: ButtonVariant = "primary", className?: string) {
+  return cn("inline-flex h-12 items-center justify-center rounded-full px-5 text-sm font-semibold transition", variantClasses[variant], className);
+}

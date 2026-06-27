@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Button } from "@/components/UI/Button";
+import { buttonClassName } from "@/components/UI/Button";
 import { APP_NAME } from "@/lib/constants";
 
 export function SiteHeader() {
@@ -13,14 +13,16 @@ export function SiteHeader() {
           {APP_NAME}
         </Link>
         <nav className="hidden gap-6 text-sm text-slate-600 md:flex dark:text-slate-300">
-          <Link href="#story">Story</Link>
-          <Link href="#companions">Companions</Link>
-          <Link href="#conversations">Conversations</Link>
-          <Link href="#features">Features</Link>
+          <Link href="/#story">Story</Link>
+          <Link href="/#companions">Companions</Link>
+          <Link href="/#conversations">Conversations</Link>
+          <Link href="/#features">Features</Link>
           <Link href="/pricing">Pricing</Link>
-          <Link href="#faq">FAQ</Link>
+          <Link href="/#faq">FAQ</Link>
         </nav>
-        <Button className="shadow-xl shadow-pink-500/20">Meet Your Companion</Button>
+        <Link href="/setup" className={buttonClassName("primary", "shadow-xl shadow-pink-500/20")}>
+          Meet Your Companion
+        </Link>
       </div>
     </header>
   );

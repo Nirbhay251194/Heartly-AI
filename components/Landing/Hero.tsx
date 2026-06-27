@@ -1,4 +1,5 @@
-import { Button } from "@/components/UI/Button";
+import { buttonClassName } from "@/components/UI/Button";
+import Link from "next/link";
 import { APP_NAME } from "@/lib/constants";
 import { ArrowRight, Heart, Sparkles } from "lucide-react";
 
@@ -19,13 +20,13 @@ export function Hero() {
             {APP_NAME} brings emotionally intelligent companions to life so every conversation feels warmer, calmer, and more personal than the last.
           </p>
           <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-            <Button className="group px-6">
+            <Link href="/setup" className={buttonClassName("primary", "group px-6")}>
               Meet Your Companion
               <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-            </Button>
-            <Button variant="secondary" className="px-6">
+            </Link>
+            <Link href="/chat" className={buttonClassName("secondary", "px-6")}>
               Start Your First Conversation
-            </Button>
+            </Link>
           </div>
           <div className="mt-8 flex flex-wrap gap-3 text-sm text-slate-600 dark:text-slate-300">
             <span className="inline-flex items-center gap-2 rounded-full bg-white/75 px-4 py-2 shadow-sm ring-1 ring-slate-200/70 dark:bg-slate-900/80 dark:ring-slate-700">

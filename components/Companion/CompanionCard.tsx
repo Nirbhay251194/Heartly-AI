@@ -2,6 +2,7 @@ import type { Companion } from "@/types/companion";
 import { Card } from "@/components/UI/Card";
 import { Badge } from "@/components/UI/Badge";
 import { Mail, MessageCircleHeart, Star, UserRound } from "lucide-react";
+import Link from "next/link";
 
 export function CompanionCard({ companion }: { companion: Companion }) {
   const portraitPlaceholder =
@@ -66,13 +67,13 @@ export function CompanionCard({ companion }: { companion: Companion }) {
             </div>
           </div>
           <div className="flex flex-wrap gap-3 pt-1">
-            <button className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 px-5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-pink-500/30">
+            <Link href={`/setup?companionId=${companion.id}`} className="inline-flex h-11 items-center justify-center rounded-full bg-gradient-to-r from-pink-500 to-rose-500 px-5 text-sm font-semibold text-white shadow-lg shadow-pink-500/20 transition duration-300 hover:-translate-y-0.5 hover:shadow-pink-500/30">
               Meet Companion
-            </button>
-            <button className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-pink-200 hover:bg-pink-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
+            </Link>
+            <Link href={`/setup?companionId=${companion.id}`} className="inline-flex h-11 items-center justify-center rounded-full border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 transition duration-300 hover:border-pink-200 hover:bg-pink-50 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-200">
               <MessageCircleHeart className="mr-2 h-4 w-4 text-pink-500" />
               Preview chat
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -34,6 +34,29 @@ export async function upsertProfileForUser(user: User, input?: { language?: Lang
     throw new Error("Supabase is not configured.");
   }
 
+  const { data: existing, error: existingError } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle<ProfileRecord>();
+  if (existingError) {
+    throw new Error("Could not load profile.");
+  }
+
+  if (existing) {
+    const updates: Partial<ProfileRecord> = {};
+    if (input?.displayName?.trim()) updates.display_name = input.displayName.trim();
+    if (input?.language) updates.preferred_language = input.language;
+    if (input?.companionId) updates.current_companion_id = input.companionId;
+
+    if (Object.keys(updates).length === 0) {
+      return existing;
+    }
+
+    const { data, error } = await supabase.from("profiles").update(updates).eq("id", user.id).select("*").single<ProfileRecord>();
+    if (error || !data) {
+      throw new Error("Could not update profile.");
+    }
+
+    return data;
+  }
+
   const profile: Partial<ProfileRecord> & Pick<ProfileRecord, "id" | "email"> = {
     id: user.id,
     email: user.email ?? `${user.id}@hartly.local`,
@@ -44,11 +67,7 @@ export async function upsertProfileForUser(user: User, input?: { language?: Lang
     current_companion_id: input?.companionId ?? null
   };
 
-  const { data, error } = await supabase
-    .from("profiles")
-    .upsert(profile, { onConflict: "id" })
-    .select("*")
-    .single<ProfileRecord>();
+  const { data, error } = await supabase.from("profiles").insert(profile).select("*").single<ProfileRecord>();
 
   if (error || !data) {
     throw new Error("Could not create or load profile.");
@@ -75,4 +94,21 @@ export async function getAuthContext(request: Request, input?: { language?: Lang
 
   const profile = await upsertProfileForUser(data.user, input);
   return { token, user: data.user, profile };
+}
+
+export function getAllowedAdminEmails(): string[] {
+  const configured = [process.env.ADMIN_EMAILS, process.env.ADMIN_EMAIL].filter(Boolean).join(",");
+  return configured
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+export function isAdminEmail(email?: string | null): boolean {
+  const allowed = getAllowedAdminEmails();
+  if (allowed.length === 0) {
+    return true;
+  }
+
+  return Boolean(email?.trim().toLowerCase() && allowed.includes(email.trim().toLowerCase()));
 }

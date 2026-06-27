@@ -1,5 +1,6 @@
 import type { User } from "@supabase/supabase-js";
 import { getCompanionById } from "@/config/companions";
+import { getPlanAmount } from "@/config/payment";
 import { buildGreeting } from "@/features/chat/greeting";
 import { buildMemorySummary, inferRelationshipStage } from "@/services/memory";
 import { getSupabaseAdminClient } from "@/services/supabase";
@@ -236,7 +237,7 @@ export async function refreshConversationMemory(input: { conversationId: string;
 
 export async function createPaymentRequest(input: { profileId: string; plan: SubscriptionPlan; transactionId?: string; screenshotUrl?: string }): Promise<PaymentRequestRecord> {
   const supabase = getAdminClient();
-  const amount = input.plan === "YEARLY" ? 1999 : input.plan === "MONTHLY" ? 199 : 0;
+  const amount = getPlanAmount(input.plan);
   const { data, error } = await supabase
     .from("payment_requests")
     .insert({

@@ -71,6 +71,12 @@ export interface PaymentRequestRecord {
   payment_screenshot_url: string | null;
   payment_status: PaymentStatus;
   admin_notes: string | null;
+  utr_number?: string | null;
+  screenshot_url?: string | null;
+  note?: string | null;
+  status?: PaymentStatus;
+  approved_at?: string | null;
+  approved_by?: string | null;
   created_at: string;
   updated_at: string;
   profiles?: Pick<ProfileRecord, "email" | "display_name"> | null;

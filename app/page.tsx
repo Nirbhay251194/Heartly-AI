@@ -4,9 +4,11 @@ import { CompanionCard } from "@/components/Companion/CompanionCard";
 import { COMPANIONS } from "@/config/companions";
 import { PRICING } from "@/config/pricing";
 import { Card } from "@/components/UI/Card";
+import { buttonClassName } from "@/components/UI/Button";
 import { SiteHeader } from "@/components/Layout/SiteHeader";
 import { SiteFooter } from "@/components/Layout/SiteFooter";
-import { ArrowRight, Check, HeartHandshake, MessageCircle, MessagesSquare, MicVocal, ShieldCheck, Sparkles, Volume2 } from "lucide-react";
+import { ArrowRight, Check, HeartHandshake, MessageCircle, MessagesSquare, MicVocal, ShieldCheck, Sparkles } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 const conversations = [
@@ -238,6 +240,9 @@ export default function HomePage() {
                   </li>
                 ))}
               </ul>
+              <Link href={plan.plan === "FREE" ? "/setup" : `/payment?plan=${plan.plan}`} className={buttonClassName(plan.plan === "FREE" ? "secondary" : "primary", "mt-6 w-full")}>
+                {plan.plan === "FREE" ? "Start Free" : "Continue to Payment"}
+              </Link>
             </Card>
           ))}
         </div>
@@ -267,7 +272,7 @@ export default function HomePage() {
               <h2 className="mt-4 font-[family-name:var(--font-poppins)] text-3xl font-semibold tracking-tight sm:text-4xl">Someone who waits for you, remembers you, and makes room for the things you want to say.</h2>
               <p className="mt-4 max-w-2xl text-base leading-8 text-slate-300">Hartly is built to feel comforting from the first message to the hundredth. Start with a companion who feels right, and let the connection deepen naturally.</p>
             </div>
-            <div className="rounded-[1.75rem] bg-white/10 p-5 backdrop-blur">
+            <Link href="/setup" className="rounded-[1.75rem] bg-white/10 p-5 backdrop-blur transition hover:bg-white/15">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-semibold">Quick start</p>
@@ -278,7 +283,7 @@ export default function HomePage() {
                 </span>
               </div>
               <p className="mt-4 text-sm leading-7 text-slate-300">Choose someone who feels like the right energy, say hello, and begin a conversation that feels personal from the very first line.</p>
-            </div>
+            </Link>
           </div>
         </Card>
       </SectionShell>
